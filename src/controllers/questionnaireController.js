@@ -28,8 +28,28 @@ export const getAllQuestionnaires = async (req, res) => {
 
                 return res.status(200).json(questionnaires);
             case 'completions':
-                sortOptions.completions = 1; 
-                break;
+                const questionnairesByCompletions = await Questionnaire.aggregate([
+                    {
+                        $lookup: {
+                            from: 'responses',
+                            localField: '_id',
+                            foreignField: 'questionnaire_id',
+                            as: 'responses',
+                        },
+                    },
+                    {
+                        $addFields: {
+                            totalCompletions: { $size: '$responses' },
+                        },
+                    },
+                    {
+                        $sort: { totalCompletions: -1 },
+                    },
+                    {
+                        $project: { responses: 0 },
+                    },
+                ]);
+                return res.status(200).json(questionnairesByCompletions);
             default:
                 sortOptions.name = 1; 
         }
