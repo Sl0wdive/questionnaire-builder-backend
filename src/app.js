@@ -47,7 +47,7 @@ app.post('/uploads', checkAuth, upload.single('image'), (req, res) => {
 app.post('/questionnaires', checkAuth, QuestionnaireController.createQuestionnaire);
 app.get('/questionnaires', QuestionnaireController.getAllQuestionnaires);
 app.get('/questionnaires/:id', QuestionnaireController.getQuestionnaireById);
-app.put('/questionnaires/:id', checkAuth, QuestionnaireController.updateQuestionnaire);
+app.patch('/questionnaires/:id', checkAuth, QuestionnaireController.updateQuestionnaire);
 app.delete('/questionnaires/:id', checkAuth, QuestionnaireController.deleteQuestionnaire);
 
 app.post('/questionnaires/:id/submit', QuestionnaireController.submitResponse);
