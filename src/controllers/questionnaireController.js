@@ -14,20 +14,24 @@ export const createQuestionnaire = async (req, res) => {
 
 export const getAllQuestionnaires = async (req, res) => {
     try {
-        const { sortBy } = req.query;
+        const { sortBy, page = 1, limit = 9} = req.query;
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
+        const skip = (pageInt - 1) * limitInt;
+
         const sortOptions = {};
 
         switch (sortBy) {
             case 'name':
                 sortOptions.name = 1;
                 break;
-            case 'questions':
+            case 'questions': {
                 const questionnaires = await Questionnaire.find();
-
                 questionnaires.sort((b, a) => a.questions.length - b.questions.length);
-
-                return res.status(200).json(questionnaires);
-            case 'completions':
+                const paginated = questionnaires.slice(skip, skip + limitInt);
+                return res.status(200).json(paginated);
+            }
+            case 'completions': {
                 const questionnairesByCompletions = await Questionnaire.aggregate([
                     {
                         $lookup: {
@@ -42,19 +46,22 @@ export const getAllQuestionnaires = async (req, res) => {
                             totalCompletions: { $size: '$responses' },
                         },
                     },
-                    {
-                        $sort: { totalCompletions: -1 },
-                    },
-                    {
-                        $project: { responses: 0 },
-                    },
+                    { $sort: { totalCompletions: -1 } },
+                    { $project: { responses: 0 } },
+                    { $skip: skip },
+                    { $limit: limitInt },
                 ]);
                 return res.status(200).json(questionnairesByCompletions);
+            }
             default:
-                sortOptions.name = 1; 
+                sortOptions.name = 1;
         }
 
-        const questionnaires = await Questionnaire.find().sort(sortOptions);
+        const questionnaires = await Questionnaire.find()
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limitInt);
+
         res.status(200).json(questionnaires);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching questionnaires', error });
