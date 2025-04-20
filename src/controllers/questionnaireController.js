@@ -1,14 +1,17 @@
 import Questionnaire from '../models/Questionnaire.js';
 import Response from "../models/Response.js";
+import UserModel from "../models/User.js";
 
 export const createQuestionnaire = async (req, res) => {
     try {
+        const creator = await UserModel.findById(req.userId);
         const { name, description, questions } = req.body;
-        const newQuestionnaire = new Questionnaire({ name, description, questions });
+        const newQuestionnaire = new Questionnaire({ creator, name, description, questions });
         await newQuestionnaire.save();
         res.status(201).json(newQuestionnaire);
     } catch (error) {
         res.status(500).json({ message: 'Error creating questionnaire', error });
+        console.log(error)
     }
 };
 
