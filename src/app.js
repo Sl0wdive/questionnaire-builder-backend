@@ -53,4 +53,5 @@ app.delete('/questionnaires/:id', checkAuth, QuestionnaireController.deleteQuest
 app.post('/questionnaires/:id/submit', QuestionnaireController.submitResponse);
 
 app.get('/questionnaires/:id/statistic', StatisticController.getQuestionnaireStatistics);
+
 export default app;

@@ -29,7 +29,7 @@ export const getAllQuestionnaires = async (req, res) => {
                 sortOptions.name = 1;
                 break;
             case 'questions': {
-                const questionnaires = await Questionnaire.find();
+                const questionnaires = await Questionnaire.find().populate('creator', 'fullName');;
                 questionnaires.sort((b, a) => a.questions.length - b.questions.length);
                 const paginated = questionnaires.slice(skip, skip + limitInt);
                 return res.status(200).json(paginated);
@@ -52,7 +52,25 @@ export const getAllQuestionnaires = async (req, res) => {
                     { $sort: { totalCompletions: -1 } },
                     { $project: { responses: 0 } },
                     { $skip: skip },
-                    { $limit: limitInt },
+                    { $limit: limitInt },{
+                        $lookup: {
+                            from: 'users',
+                            localField: 'creator',
+                            foreignField: '_id',
+                            as: 'creator',
+                        },
+                    },
+                    {
+                        $unwind: '$creator'
+                    },
+                    {
+                        $addFields: {
+                            creator: {
+                                _id: '$creator._id',
+                                fullName: '$creator.fullName',
+                            }
+                        }
+                    }
                 ]);
                 return res.status(200).json(questionnairesByCompletions);
             }
@@ -63,7 +81,8 @@ export const getAllQuestionnaires = async (req, res) => {
         const questionnaires = await Questionnaire.find()
             .sort(sortOptions)
             .skip(skip)
-            .limit(limitInt);
+            .limit(limitInt)
+            .populate('creator', 'fullName');
 
         res.status(200).json(questionnaires);
     } catch (error) {
