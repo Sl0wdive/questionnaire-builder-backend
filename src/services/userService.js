@@ -23,7 +23,7 @@ export class UserService {
     const user = await doc.save();
 
     const token = jwt.sign(
-      { _id: user._id, email: user.email, name: user.name }, 
+      { _id: user._id, email: user.email, name: user.name },
       JWT_SECRET,
       {
         expiresIn: '30d',
@@ -52,8 +52,8 @@ export class UserService {
     return token;
   }
 
-  static getCurrentUser = async (userId) => {
-    const user = await UserModel.findById(userId).select('-passwordHash');
+  static getCurrentUser = async (user_id) => {
+    const user = await UserModel.findById(user_id).select('-passwordHash');
     if (!user) {
       throw { status: 404, message: 'User not found' };
     }

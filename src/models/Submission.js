@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const ResponseSchema = new mongoose.Schema({
+const SubmissionSchema = new mongoose.Schema({
   questionnaire_id: { type: mongoose.Schema.Types.ObjectId, ref: "Questionnaire", required: true },
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   answers: [
@@ -15,4 +15,4 @@ const ResponseSchema = new mongoose.Schema({
 });
 
 
-export default mongoose.model("Response", ResponseSchema);
+export default mongoose.model("Submission", SubmissionSchema);
