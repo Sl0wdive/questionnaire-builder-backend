@@ -1,14 +1,10 @@
-import SubmissionModel from '../models/Submission.js';
+import { StatisticService } from "../services/statisticService.js";
 
 export const getQuestionnaireStatistics = async (req, res) => {
 	try {
-		const { id } = req.params;
-		const submission = await SubmissionModel.find({ questionnaire_id: id });
+		const stats = await StatisticService.getById(req.params.id);
 
-		const totalCompletions = submission.length;
-		const averageTime = submission.reduce((sum, r) => sum + r.completion_time, 0) / totalCompletions;
-
-		res.status(200).json({ totalCompletions, averageTime });
+		res.status(200).json(stats);
 	} catch (error) {
 		res.status(500).json({ message: 'Error fetching statistics', error });
 	}
